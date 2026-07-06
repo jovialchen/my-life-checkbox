@@ -79,15 +79,15 @@
 }
 
 /* ── Notes Input ── */
-.lt-notes-input {
+.learning-tracker-container .lt-notes-input {
   width: 100%; padding: 8px 12px;
-  border: 1.5px solid #c8ddd6; border-radius: 12px;
+  border: 1.5px solid #c8ddd6 !important; border-radius: 12px;
   font-size: 13px; outline: none;
-  background: var(--lt-card); color: var(--lt-text); box-sizing: border-box;
+  background: #f8fcfb !important; color: #1a3532 !important; box-sizing: border-box;
   transition: border-color 0.2s;
 }
-.lt-notes-input:focus { border-color: var(--lt-teal); }
-.lt-notes-input::placeholder { color: #b0c8c0; }
+.learning-tracker-container .lt-notes-input:focus { border-color: var(--lt-teal) !important; }
+.learning-tracker-container .lt-notes-input::placeholder { color: #b0c8c0; }
 
 .lt-empty { font-size: 11px; color: var(--lt-sub); padding: 4px 0; }
 
