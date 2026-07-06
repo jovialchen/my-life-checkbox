@@ -53,11 +53,11 @@
 /* ── Project Buttons ── */
 .lt-project-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 .lt-proj-btn {
-  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c8ddd6;
-  background: var(--lt-card); cursor: pointer; font-size: 12px;
+  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #b8d8d0;
+  background: #e6f4f0; cursor: pointer; font-size: 12px;
   color: var(--lt-text); transition: all 0.2s ease; white-space: nowrap;
 }
-.lt-proj-btn:hover { background: #e8f6f2; border-color: var(--lt-teal); }
+.lt-proj-btn:hover { background: #c8ece4; border-color: var(--lt-teal); }
 .lt-proj-btn.active {
   background: var(--lt-teal); border-color: var(--lt-teal-dark); color: #fff;
   box-shadow: 0 2px 8px rgba(40, 170, 150, 0.3);
@@ -66,11 +66,11 @@
 /* ── Time Buttons ── */
 .lt-time-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 .lt-time-btn {
-  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c8ddd6;
-  background: var(--lt-card); cursor: pointer; font-size: 12px;
+  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c0d8cc;
+  background: #ecf6f0; cursor: pointer; font-size: 12px;
   color: var(--lt-text); transition: all 0.2s ease;
 }
-.lt-time-btn:hover { background: #f0faf6; border-color: var(--lt-mint); }
+.lt-time-btn:hover { background: #d0f0de; border-color: var(--lt-mint); }
 .lt-time-btn.active {
   background: var(--lt-mint); border-color: var(--lt-mint-dark); color: #fff;
   box-shadow: 0 2px 8px rgba(50, 160, 120, 0.3);
