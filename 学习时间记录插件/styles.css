@@ -51,29 +51,31 @@
 .lt-section-title { font-size: 12px; color: var(--lt-sub); margin-bottom: 6px; padding-left: 2px; }
 
 /* ── Project Buttons ── */
-.lt-project-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.lt-proj-btn {
+.learning-tracker-container .lt-project-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.learning-tracker-container .lt-proj-btn {
   padding: 6px 12px; border-radius: 20px; border: 1.5px solid #b8d8d0;
-  background: #e6f4f0; cursor: pointer; font-size: 12px;
-  color: var(--lt-text); transition: all 0.2s ease; white-space: nowrap;
+  background: #e6f4f0 !important; cursor: pointer; font-size: 12px;
+  color: #1a3532 !important; transition: all 0.2s ease; white-space: nowrap;
+  box-shadow: none !important;
 }
-.lt-proj-btn:hover { background: #c8ece4; border-color: var(--lt-teal); }
-.lt-proj-btn.active {
-  background: var(--lt-teal); border-color: var(--lt-teal-dark); color: #fff;
-  box-shadow: 0 2px 8px rgba(40, 170, 150, 0.3);
+.learning-tracker-container .lt-proj-btn:hover { background: #c8ece4 !important; border-color: var(--lt-teal); }
+.learning-tracker-container .lt-proj-btn.active {
+  background: var(--lt-teal) !important; border-color: var(--lt-teal-dark); color: #fff !important;
+  box-shadow: 0 2px 8px rgba(40, 170, 150, 0.3) !important;
 }
 
 /* ── Time Buttons ── */
-.lt-time-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.lt-time-btn {
+.learning-tracker-container .lt-time-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.learning-tracker-container .lt-time-btn {
   padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c0d8cc;
-  background: #ecf6f0; cursor: pointer; font-size: 12px;
-  color: var(--lt-text); transition: all 0.2s ease;
+  background: #ecf6f0 !important; cursor: pointer; font-size: 12px;
+  color: #1a3532 !important; transition: all 0.2s ease;
+  box-shadow: none !important;
 }
-.lt-time-btn:hover { background: #d0f0de; border-color: var(--lt-mint); }
-.lt-time-btn.active {
-  background: var(--lt-mint); border-color: var(--lt-mint-dark); color: #fff;
-  box-shadow: 0 2px 8px rgba(50, 160, 120, 0.3);
+.learning-tracker-container .lt-time-btn:hover { background: #d0f0de !important; border-color: var(--lt-mint); }
+.learning-tracker-container .lt-time-btn.active {
+  background: var(--lt-mint) !important; border-color: var(--lt-mint-dark); color: #fff !important;
+  box-shadow: 0 2px 8px rgba(50, 160, 120, 0.3) !important;
 }
 
 /* ── Notes Input ── */
