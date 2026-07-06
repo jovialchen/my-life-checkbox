@@ -176,13 +176,11 @@ class DailyCheckinView extends ItemView {
   }
 
   refreshStats(container, habits, records) {
-    // Remove old stats if exists
     const oldStats = container.querySelector('.checkin-stats');
     if (oldStats) oldStats.remove();
 
     const stats = container.createDiv('checkin-stats');
 
-    // Numbers row
     const date = dateStr(this.currentOffset);
     const todayRecords = records[date] || [0, 0, 0];
     const todayTotal = todayRecords.reduce((a, b) => a + b, 0);
@@ -198,12 +196,9 @@ class DailyCheckinView extends ItemView {
     const monthPrefix = now.toISOString().slice(0, 7);
     let monthTotal = 0;
     for (const [d, r] of Object.entries(records)) {
-      if (d.startsWith(monthPrefix)) {
-        monthTotal += r.reduce((a, b) => a + b, 0);
-      }
+      if (d.startsWith(monthPrefix)) monthTotal += r.reduce((a, b) => a + b, 0);
     }
 
-    // Streak
     let streak = 0;
     for (let i = 0; i < 365; i++) {
       const d = dateStr(-i);
@@ -212,6 +207,7 @@ class DailyCheckinView extends ItemView {
       else if (i > 0) break;
     }
 
+    // ── Number row ──
     const numRow = stats.createDiv('stats-num-row');
     [
       { val: todayTotal, label: '今日' },
@@ -224,20 +220,47 @@ class DailyCheckinView extends ItemView {
       item.createSpan({ text: s.label, cls: 'stat-num-label' });
     });
 
-    // Per-habit today
-    const habitRow = stats.createDiv('stats-habit-row');
+    // ── Ring Chart (donut) ──
+    const ringRow = stats.createDiv('stats-ring-row');
+
+    // SVG ring
+    const ringWrap = ringRow.createDiv('stats-ring-wrap');
+    const r = 22, circ = 2 * Math.PI * r;
+    const totalForRing = todayTotal || 1; // avoid 0
+    const colors = ['#5dbdb4', '#5b9ec8', '#6bae98'];
+
+    const svg = `<svg class="stats-ring-svg" viewBox="0 0 56 56">
+      <circle class="stats-ring-bg" cx="28" cy="28" r="${r}"/>
+      ${todayRecords.map((count, i) => {
+        const prevSum = todayRecords.slice(0, i).reduce((a,b) => a+b, 0);
+        const dashLen = (count / totalForRing) * circ;
+        const dashOff = circ - (prevSum / totalForRing) * circ;
+        return count > 0 ? `<circle class="stats-ring-fill" cx="28" cy="28" r="${r}"
+          stroke="${colors[i]}" stroke-dasharray="${dashLen} ${circ}"
+          stroke-dashoffset="${dashOff}" style="transition: all 0.6s ease;"/>` : '';
+      }).join('')}
+    </svg>`;
+    ringWrap.innerHTML = svg;
+    const center = ringWrap.createDiv('stats-ring-center');
+    center.setText(todayTotal > 0 ? '✨' : '💤');
+
+    // Ring legend
+    const legend = ringRow.createDiv('stats-ring-legend');
     habits.forEach((h, i) => {
-      const hi = habitRow.createDiv('stat-habit-item');
-      hi.createSpan({ text: h.icon, cls: 'stat-habit-icon' });
-      hi.createSpan({ text: String(todayRecords[i] || 0), cls: 'stat-habit-count' });
+      const item = legend.createDiv('stats-ring-legend-item');
+      item.createSpan({ cls: `stats-ring-dot d${i}` });
+      item.createSpan({ text: `${h.icon} ${h.name}: ${todayRecords[i] || 0}` });
     });
 
-    // Mini 7-day bars
+    // ── 7-day bar chart ──
     const barsWrap = stats.createDiv('stats-bars');
+    barsWrap.createDiv({ text: '📊 近7天', cls: 'stat-num-label' });
+    const barsInner = barsWrap.createDiv({ cls: 'stats-bars-inner' });
+    barsInner.style.cssText = 'display:flex;align-items:flex-end;justify-content:center;gap:4px;height:52px;';
+
     const maxVal = Math.max(1, ...Array.from({ length: 7 }, (_, i) => {
       const d = dateStr(-6 + i);
-      const r = records[d] || [0, 0, 0];
-      return r.reduce((a, b) => a + b, 0);
+      return (records[d] || [0,0,0]).reduce((a,b) => a+b, 0);
     }));
 
     for (let i = 6; i >= 0; i--) {
@@ -246,12 +269,17 @@ class DailyCheckinView extends ItemView {
       const total = r.reduce((a, b) => a + b, 0);
       const pct = Math.max(2, (total / maxVal) * 100);
 
-      const barWrap = barsWrap.createDiv('bar-wrap');
+      const barWrap = barsInner.createDiv('bar-wrap');
       const bar = barWrap.createDiv('bar');
       bar.style.height = pct + '%';
       if (total === 0) bar.addClass('empty');
       barWrap.createSpan({ text: formatCN(d), cls: 'bar-label' });
     }
+
+    // ── Streak badge ──
+    const streakRow = stats.createDiv('stats-streak');
+    const badge = streakRow.createDiv('streak-badge');
+    badge.setText(streak > 0 ? `🔥 连续打卡 ${streak} 天` : '💤 今天开始打卡吧~');
   }
 }
 

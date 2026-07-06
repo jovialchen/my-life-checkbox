@@ -1,21 +1,22 @@
 /* ── Google Fonts (cute rounded Chinese font) ── */
 @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
 
-/* ── Kawaii Color Variables ── */
+/* ── Blue-Green Teal Palette ── */
 .daily-checkin-container {
-  --ck-bg: #fff9f7;
+  --ck-bg: #f4faf9;
   --ck-card: #ffffff;
-  --ck-text: #5c4a3d;
-  --ck-sub: #b8a094;
-  --ck-pink: #ffb8c6;
-  --ck-pink-dark: #f598a8;
-  --ck-blue: #b8d4f0;
-  --ck-blue-dark: #8ab8e0;
-  --ck-purple: #d4c0f0;
-  --ck-purple-dark: #b898e0;
-  --ck-green: #b8e8d0;
-  --ck-green-dark: #88d4a8;
-  --ck-shadow: 0 2px 12px rgba(230, 180, 180, 0.2);
+  --ck-text: #1a3c3a;
+  --ck-sub: #5a8a84;
+  --ck-teal: #5dbdb4;
+  --ck-teal-dark: #3a9e94;
+  --ck-ocean: #5b9ec8;
+  --ck-ocean-dark: #3d80b0;
+  --ck-mint: #6bae98;
+  --ck-mint-dark: #4d9078;
+  --ck-teal-light: #d8f2ee;
+  --ck-ocean-light: #dceaf6;
+  --ck-mint-light: #daf0e6;
+  --ck-shadow: 0 2px 12px rgba(60, 140, 140, 0.1);
   --ck-radius: 18px;
   --font-cute: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', cursive, sans-serif;
 
@@ -28,14 +29,14 @@
   overflow-y: auto;
 }
 
-/* ── Scrollbar (cute) ── */
-.daily-checkin-container::-webkit-scrollbar { width: 6px; }
+/* ── Scrollbar ── */
+.daily-checkin-container::-webkit-scrollbar { width: 5px; }
 .daily-checkin-container::-webkit-scrollbar-track { background: transparent; }
 .daily-checkin-container::-webkit-scrollbar-thumb {
-  background: #f0d8d8;
+  background: #c8e0dc;
   border-radius: 10px;
 }
-.daily-checkin-container::-webkit-scrollbar-thumb:hover { background: #e8c8c8; }
+.daily-checkin-container::-webkit-scrollbar-thumb:hover { background: #a8d0ca; }
 
 /* ── Header ── */
 .checkin-header {
@@ -46,11 +47,9 @@
   font-size: 22px;
   font-weight: 400;
   letter-spacing: 2px;
-  position: relative;
 }
-/* Decorative sparkles around title */
-.checkin-title::before { content: '・❀・ '; font-size: 14px; opacity: 0.6; }
-.checkin-title::after  { content: ' ・❀・'; font-size: 14px; opacity: 0.6; }
+.checkin-title::before { content: '・✿・ '; font-size: 14px; opacity: 0.5; }
+.checkin-title::after  { content: ' ・✿・'; font-size: 14px; opacity: 0.5; }
 
 /* ── Day Tabs ── */
 .checkin-tabs {
@@ -73,15 +72,15 @@
   flex-direction: column;
   gap: 1px;
 }
-.checkin-tab:hover { background: #fff0f3; }
+.checkin-tab:hover { background: #e8f6f4; }
 .checkin-tab.active {
-  background: linear-gradient(135deg, #ffb8c6, #ffd0c0);
+  background: linear-gradient(135deg, #5dbdb4, #4aaea0);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(255, 160, 160, 0.3);
+  box-shadow: 0 2px 8px rgba(60, 180, 160, 0.3);
 }
 .tab-label { font-size: 13px; letter-spacing: 1px; }
-.tab-date  { font-size: 10px; opacity: 0.65; }
-.checkin-tab.active .tab-date { opacity: 0.9; }
+.tab-date  { font-size: 10px; opacity: 0.7; }
+.checkin-tab.active .tab-date { opacity: 0.95; }
 
 /* ── Habit Cards ── */
 .checkin-cards {
@@ -104,11 +103,11 @@
   transition: all 0.2s ease;
 }
 .checkin-card:hover {
-  border-color: #ffe0e4;
-  box-shadow: 0 4px 16px rgba(230, 180, 180, 0.25);
+  border-color: #c8e8e2;
+  box-shadow: 0 4px 16px rgba(60, 140, 140, 0.15);
 }
 
-/* Bounce animation when clicked */
+/* Bounce animation */
 .checkin-card.bounce {
   animation: cardBounce 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -120,9 +119,9 @@
 }
 
 /* Card accent borders per habit */
-.checkin-card[data-habit="0"]:hover { border-color: #ffd0da; }
-.checkin-card[data-habit="1"]:hover { border-color: #c8dff8; }
-.checkin-card[data-habit="2"]:hover { border-color: #dcd0f8; }
+.checkin-card[data-habit="0"]:hover { border-color: #a0ddd6; }
+.checkin-card[data-habit="1"]:hover { border-color: #a0c8e8; }
+.checkin-card[data-habit="2"]:hover { border-color: #90c8b0; }
 
 /* Left side: icon + name */
 .card-left {
@@ -141,9 +140,9 @@
   font-size: 20px;
   flex-shrink: 0;
 }
-.checkin-card[data-habit="0"] .card-icon { background: #fff0f3; }
-.checkin-card[data-habit="1"] .card-icon { background: #f0f4fa; }
-.checkin-card[data-habit="2"] .card-icon { background: #f4f0fa; }
+.checkin-card[data-habit="0"] .card-icon { background: var(--ck-teal-light); }
+.checkin-card[data-habit="1"] .card-icon { background: var(--ck-ocean-light); }
+.checkin-card[data-habit="2"] .card-icon { background: var(--ck-mint-light); }
 
 .card-name {
   font-size: 14px;
@@ -168,7 +167,7 @@
   line-height: 1;
   transition: all 0.2s ease;
 }
-.card-count.zero { color: #d8d0c8; }
+.card-count.zero { color: #c0ccc8; }
 
 /* Buttons */
 .card-btn {
@@ -190,19 +189,19 @@
 .card-btn:active { transform: scale(0.88); }
 
 .btn-minus {
-  background: #f0ece8;
-  color: #a09888;
+  background: #e8f0ee;
+  color: #7a9a94;
 }
-.btn-minus:hover:not(:disabled) { background: #e8e0d8; color: #706858; }
+.btn-minus:hover:not(:disabled) { background: #d0e4e0; color: #4a6a64; }
 .btn-minus:disabled { opacity: 0.25; cursor: not-allowed; }
 
 .btn-plus {
-  background: linear-gradient(135deg, #ffb8c6, #ffc8b0);
+  background: linear-gradient(135deg, #5dbdb4, #4aaea0);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(255, 160, 160, 0.3);
+  box-shadow: 0 2px 6px rgba(60, 180, 160, 0.3);
 }
-.btn-plus:hover { box-shadow: 0 3px 10px rgba(255, 150, 150, 0.4); }
-.btn-plus:active  { box-shadow: 0 1px 3px rgba(255, 160, 160, 0.3); }
+.btn-plus:hover { box-shadow: 0 3px 10px rgba(50, 160, 140, 0.4); }
+.btn-plus:active  { box-shadow: 0 1px 3px rgba(60, 180, 160, 0.3); }
 
 /* ── Stats Section ── */
 .checkin-stats {
@@ -216,7 +215,7 @@
 .stats-num-row {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .stat-num-item {
   text-align: center;
@@ -234,15 +233,78 @@
   color: var(--ck-sub);
 }
 
-/* Per-habit today row */
+/* ── Ring Chart Row ── */
+.stats-ring-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1.5px dashed #d8e8e4;
+  border-bottom: 1.5px dashed #d8e8e4;
+  margin-bottom: 10px;
+}
+.stats-ring-wrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+.stats-ring-svg {
+  transform: rotate(-90deg);
+  width: 56px;
+  height: 56px;
+}
+.stats-ring-bg {
+  fill: none;
+  stroke: #e0ece8;
+  stroke-width: 5;
+}
+.stats-ring-fill {
+  fill: none;
+  stroke: #5dbdb4;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stats-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+/* Per-habit legend next to ring */
+.stats-ring-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.stats-ring-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+.stats-ring-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.stats-ring-dot.d0 { background: var(--ck-teal); }
+.stats-ring-dot.d1 { background: var(--ck-ocean); }
+.stats-ring-dot.d2 { background: var(--ck-mint); }
+
+/* ── Habit today breakdown ── */
 .stats-habit-row {
   display: flex;
   justify-content: center;
   gap: 14px;
-  padding: 8px 0;
-  border-top: 1.5px dashed #f0e8e0;
-  border-bottom: 1.5px dashed #f0e8e0;
-  margin-bottom: 12px;
+  padding: 6px 0;
+  margin-bottom: 10px;
 }
 .stat-habit-item {
   display: flex;
@@ -252,18 +314,21 @@
 .stat-habit-icon  { font-size: 16px; }
 .stat-habit-count { font-size: 15px; font-weight: 400; }
 
-/* Mini 7-day bars */
+/* ── Mini 7-day bars ── */
 .stats-bars {
+  margin-top: 4px;
+}
+.stats-bars-inner {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 5px;
-  height: 60px;
+  gap: 4px;
+  height: 52px;
   padding-top: 4px;
 }
 .bar-wrap {
   flex: 1;
-  max-width: 32px;
+  max-width: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -275,11 +340,11 @@
   width: 100%;
   border-radius: 5px 5px 0 0;
   min-height: 3px;
-  background: linear-gradient(180deg, #ffb8c6 0%, #ffc8b0 100%);
+  background: linear-gradient(180deg, #5dbdb4 0%, #4aaea0 100%);
   transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .bar.empty {
-  background: #f0e8e0;
+  background: #d8e4e0;
   min-height: 2px;
 }
 .bar-label {
@@ -288,11 +353,18 @@
   white-space: nowrap;
 }
 
-/* ── Decorative footer ── */
-.checkin-footer {
+/* ── Streak badge ── */
+.stats-streak {
   text-align: center;
-  margin-top: 10px;
-  font-size: 11px;
-  color: var(--ck-sub);
-  letter-spacing: 1px;
+  margin-top: 8px;
+}
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #e8f8f4, #d0f0e8);
+  color: #2a6a5e;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
 }
