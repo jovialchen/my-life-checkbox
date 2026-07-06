@@ -1,0 +1,300 @@
+/* ── Google Fonts (cute rounded Chinese font) ── */
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+
+/* ── Kawaii Color Variables ── */
+.daily-checkin-container {
+  --ck-bg: #fff9f7;
+  --ck-card: #ffffff;
+  --ck-text: #5c4a3d;
+  --ck-sub: #b8a094;
+  --ck-pink: #ffb8c6;
+  --ck-pink-dark: #f598a8;
+  --ck-blue: #b8d4f0;
+  --ck-blue-dark: #8ab8e0;
+  --ck-purple: #d4c0f0;
+  --ck-purple-dark: #b898e0;
+  --ck-green: #b8e8d0;
+  --ck-green-dark: #88d4a8;
+  --ck-shadow: 0 2px 12px rgba(230, 180, 180, 0.2);
+  --ck-radius: 18px;
+  --font-cute: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', cursive, sans-serif;
+
+  font-family: var(--font-cute);
+  background: var(--ck-bg);
+  padding: 12px;
+  color: var(--ck-text);
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* ── Scrollbar (cute) ── */
+.daily-checkin-container::-webkit-scrollbar { width: 6px; }
+.daily-checkin-container::-webkit-scrollbar-track { background: transparent; }
+.daily-checkin-container::-webkit-scrollbar-thumb {
+  background: #f0d8d8;
+  border-radius: 10px;
+}
+.daily-checkin-container::-webkit-scrollbar-thumb:hover { background: #e8c8c8; }
+
+/* ── Header ── */
+.checkin-header {
+  text-align: center;
+  padding: 10px 0 8px;
+}
+.checkin-title {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  position: relative;
+}
+/* Decorative sparkles around title */
+.checkin-title::before { content: '・❀・ '; font-size: 14px; opacity: 0.6; }
+.checkin-title::after  { content: ' ・❀・'; font-size: 14px; opacity: 0.6; }
+
+/* ── Day Tabs ── */
+.checkin-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--ck-card);
+  border-radius: 14px;
+  padding: 5px;
+  margin-bottom: 12px;
+  box-shadow: var(--ck-shadow);
+}
+.checkin-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.checkin-tab:hover { background: #fff0f3; }
+.checkin-tab.active {
+  background: linear-gradient(135deg, #ffb8c6, #ffd0c0);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 160, 160, 0.3);
+}
+.tab-label { font-size: 13px; letter-spacing: 1px; }
+.tab-date  { font-size: 10px; opacity: 0.65; }
+.checkin-tab.active .tab-date { opacity: 0.9; }
+
+/* ── Habit Cards ── */
+.checkin-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.checkin-card {
+  background: var(--ck-card);
+  border-radius: var(--ck-radius);
+  padding: 12px 14px;
+  box-shadow: var(--ck-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1.5px solid transparent;
+  transition: all 0.2s ease;
+}
+.checkin-card:hover {
+  border-color: #ffe0e4;
+  box-shadow: 0 4px 16px rgba(230, 180, 180, 0.25);
+}
+
+/* Bounce animation when clicked */
+.checkin-card.bounce {
+  animation: cardBounce 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes cardBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.03); }
+  60%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+/* Card accent borders per habit */
+.checkin-card[data-habit="0"]:hover { border-color: #ffd0da; }
+.checkin-card[data-habit="1"]:hover { border-color: #c8dff8; }
+.checkin-card[data-habit="2"]:hover { border-color: #dcd0f8; }
+.checkin-card[data-habit="3"]:hover { border-color: #c0f0d8; }
+
+/* Left side: icon + name */
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.checkin-card[data-habit="0"] .card-icon { background: #fff0f3; }
+.checkin-card[data-habit="1"] .card-icon { background: #f0f4fa; }
+.checkin-card[data-habit="2"] .card-icon { background: #f4f0fa; }
+.checkin-card[data-habit="3"] .card-icon { background: #f0faf4; }
+
+.card-name {
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right side: count + buttons */
+.card-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.card-count {
+  font-size: 26px;
+  font-weight: 400;
+  min-width: 28px;
+  text-align: center;
+  color: var(--ck-text);
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+.card-count.zero { color: #d8d0c8; }
+
+/* Buttons */
+.card-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  font-family: var(--font-cute);
+  line-height: 1;
+}
+.card-btn:active { transform: scale(0.88); }
+
+.btn-minus {
+  background: #f0ece8;
+  color: #a09888;
+}
+.btn-minus:hover:not(:disabled) { background: #e8e0d8; color: #706858; }
+.btn-minus:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.btn-plus {
+  background: linear-gradient(135deg, #ffb8c6, #ffc8b0);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(255, 160, 160, 0.3);
+}
+.btn-plus:hover { box-shadow: 0 3px 10px rgba(255, 150, 150, 0.4); }
+.btn-plus:active  { box-shadow: 0 1px 3px rgba(255, 160, 160, 0.3); }
+
+/* ── Stats Section ── */
+.checkin-stats {
+  background: var(--ck-card);
+  border-radius: var(--ck-radius);
+  padding: 14px;
+  box-shadow: var(--ck-shadow);
+}
+
+/* Number row */
+.stats-num-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+.stat-num-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-num-val {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ck-text);
+}
+.stat-num-label {
+  font-size: 10px;
+  color: var(--ck-sub);
+}
+
+/* Per-habit today row */
+.stats-habit-row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-top: 1.5px dashed #f0e8e0;
+  border-bottom: 1.5px dashed #f0e8e0;
+  margin-bottom: 12px;
+}
+.stat-habit-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.stat-habit-icon  { font-size: 16px; }
+.stat-habit-count { font-size: 15px; font-weight: 400; }
+
+/* Mini 7-day bars */
+.stats-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  height: 60px;
+  padding-top: 4px;
+}
+.bar-wrap {
+  flex: 1;
+  max-width: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+  min-height: 3px;
+  background: linear-gradient(180deg, #ffb8c6 0%, #ffc8b0 100%);
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bar.empty {
+  background: #f0e8e0;
+  min-height: 2px;
+}
+.bar-label {
+  font-size: 9px;
+  color: var(--ck-sub);
+  white-space: nowrap;
+}
+
+/* ── Decorative footer ── */
+.checkin-footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--ck-sub);
+  letter-spacing: 1px;
+}

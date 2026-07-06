@@ -1,0 +1,9 @@
+{
+  "id": "daily-checkin",
+  "name": "🌸 每日打卡",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "可爱风格的每日健康习惯打卡系统，显示在右侧边栏。点击+/-记录呼吸练习、面部哑铃、面部刮痧等习惯。",
+  "author": "Atlas",
+  "isDesktopOnly": false
+}
