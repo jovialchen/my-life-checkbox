@@ -220,36 +220,12 @@ class DailyCheckinView extends ItemView {
       item.createSpan({ text: s.label, cls: 'stat-num-label' });
     });
 
-    // ── Ring Chart (donut) ──
-    const ringRow = stats.createDiv('stats-ring-row');
-
-    // SVG ring
-    const ringWrap = ringRow.createDiv('stats-ring-wrap');
-    const r = 22, circ = 2 * Math.PI * r;
-    const totalForRing = todayTotal || 1; // avoid 0
-    const colors = ['#5dbdb4', '#5b9ec8', '#6bae98'];
-
-    const svg = `<svg class="stats-ring-svg" viewBox="0 0 56 56">
-      <circle class="stats-ring-bg" cx="28" cy="28" r="${r}"/>
-      ${todayRecords.map((count, i) => {
-        const prevSum = todayRecords.slice(0, i).reduce((a,b) => a+b, 0);
-        const dashLen = (count / totalForRing) * circ;
-        const dashOff = circ - (prevSum / totalForRing) * circ;
-        return count > 0 ? `<circle class="stats-ring-fill" cx="28" cy="28" r="${r}"
-          stroke="${colors[i]}" stroke-dasharray="${dashLen} ${circ}"
-          stroke-dashoffset="${dashOff}" style="transition: all 0.6s ease;"/>` : '';
-      }).join('')}
-    </svg>`;
-    ringWrap.innerHTML = svg;
-    const center = ringWrap.createDiv('stats-ring-center');
-    center.setText(todayTotal > 0 ? '✨' : '💤');
-
-    // Ring legend
-    const legend = ringRow.createDiv('stats-ring-legend');
+    // Per-habit today
+    const habitRow = stats.createDiv('stats-habit-row');
     habits.forEach((h, i) => {
-      const item = legend.createDiv('stats-ring-legend-item');
-      item.createSpan({ cls: `stats-ring-dot d${i}` });
-      item.createSpan({ text: `${h.icon} ${h.name}: ${todayRecords[i] || 0}` });
+      const hi = habitRow.createDiv('stat-habit-item');
+      hi.createSpan({ text: h.icon, cls: 'stat-habit-icon' });
+      hi.createSpan({ text: String(todayRecords[i] || 0), cls: 'stat-habit-count' });
     });
 
     // ── 7-day bar chart ──

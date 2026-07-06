@@ -240,19 +240,17 @@ class LearningTrackerView extends ItemView {
   }
 
   renderStats(container, records) {
-    // Today
     const today = dateStr(0);
-    const todayRecords = records.filter(r => r.date === today || r.date === today.slice(5));
+    const matchDay = (r, d) => r.date === d || r.date === d.slice(5);
+
+    const todayRecords = records.filter(r => matchDay(r, today));
     const todayMin = todayRecords.reduce((s, r) => s + r.durationMin, 0);
 
-    // Week
+    // Week total
     let weekMin = 0;
     for (let i = 0; i < 7; i++) {
       const d = dateStr(-i);
-      const short = d.slice(5);
-      weekMin += records
-        .filter(r => r.date === d || r.date === short)
-        .reduce((s, r) => s + r.durationMin, 0);
+      weekMin += records.filter(r => matchDay(r, d)).reduce((s, r) => s + r.durationMin, 0);
     }
 
     // Month
@@ -260,21 +258,18 @@ class LearningTrackerView extends ItemView {
     let monthMin = 0;
     for (const r of records) {
       const d = r.date.length === 10 ? r.date : `2026-${r.date}`;
-      if (d.startsWith(monthPrefix)) {
-        monthMin += r.durationMin;
-      }
+      if (d.startsWith(monthPrefix)) monthMin += r.durationMin;
     }
 
     // Streak
     let streak = 0;
     for (let i = 0; i < 365; i++) {
       const d = dateStr(-i);
-      const short = d.slice(5);
-      const has = records.some(r => r.date === d || r.date === short);
-      if (has) streak++;
+      if (records.some(r => matchDay(r, d))) streak++;
       else if (i > 0) break;
     }
 
+    // ── Number row ──
     const numRow = container.createDiv('lt-stats-row');
     [
       { val: formatDuration(todayMin), label: '今日' },
@@ -287,22 +282,106 @@ class LearningTrackerView extends ItemView {
       item.createSpan({ text: s.label, cls: 'lt-stat-label' });
     });
 
-    // Per-project today
-    if (todayRecords.length > 0) {
-      const projRow = container.createDiv('lt-proj-stats');
-      const projectTotals = {};
+    // ── ❶ Ring Chart: 今日项目占比 ──
+    if (todayMin > 0) {
+      const ringRow = container.createDiv('lt-ring-row');
+      const ringWrap = ringRow.createDiv('lt-ring-wrap');
+      const r = 22, circ = 2 * Math.PI * r;
+      const colors = ['#4db8ac','#4d9dc8','#5dae90','#b8a060','#c08080','#80a0c0'];
+
+      // Aggregate today by project
+      const projMap = {};
       todayRecords.forEach(r => {
-        projectTotals[r.project] = (projectTotals[r.project] || 0) + r.durationMin;
+        projMap[r.project] = (projMap[r.project] || 0) + r.durationMin;
       });
-      Object.entries(projectTotals).forEach(([proj, min]) => {
-        const item = projRow.createDiv('lt-proj-stat-item');
-        item.createSpan({ text: proj, cls: 'lt-proj-name' });
-        item.createSpan({ text: formatDuration(min), cls: 'lt-proj-time' });
+      const projEntries = Object.entries(projMap);
+
+      let dashOffset = 0;
+      const segments = projEntries.map(([, min], i) => {
+        const len = (min / todayMin) * circ;
+        const seg = `<circle class="lt-ring-fill" cx="28" cy="28" r="${r}"
+          stroke="${colors[i % colors.length]}" stroke-dasharray="${len} ${circ}"
+          stroke-dashoffset="${-dashOffset}" />`;
+        dashOffset += len;
+        return seg;
+      }).join('');
+
+      ringWrap.innerHTML = `<svg class="lt-ring-svg" viewBox="0 0 56 56">
+        <circle class="lt-ring-bg" cx="28" cy="28" r="${r}"/>${segments}</svg>`;
+      ringWrap.createDiv({ text: '📚', cls: 'lt-ring-center' });
+
+      const legend = ringRow.createDiv('lt-ring-legend');
+      projEntries.forEach(([proj, min], i) => {
+        const item = legend.createDiv('lt-ring-legend-item');
+        item.createSpan({ cls: 'lt-ring-dot', attr: { style: `background:${colors[i % colors.length]}` } });
+        item.createSpan({ text: `${proj}: ${formatDuration(min)}` });
+      });
+    } else {
+      container.createDiv({ text: '💤 今天还没学习呢~', cls: 'lt-empty' });
+    }
+
+    // ── ❷ Horizontal Bar: 本周项目排行 ──
+    const weekProjMap = {};
+    for (let i = 0; i < 7; i++) {
+      const d = dateStr(-i);
+      records.filter(r => matchDay(r, d)).forEach(r => {
+        weekProjMap[r.project] = (weekProjMap[r.project] || 0) + r.durationMin;
+      });
+    }
+    const weekSorted = Object.entries(weekProjMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    if (weekSorted.length > 0) {
+      const hbarSection = container.createDiv('lt-hbar-section');
+      hbarSection.createDiv({ text: '📊 本周排行', cls: 'lt-section-title' });
+      const maxW = weekSorted[0][1];
+      weekSorted.forEach(([proj, min], i) => {
+        const row = hbarSection.createDiv('lt-hbar-row');
+        row.createSpan({ text: proj, cls: 'lt-hbar-name' });
+        const barWrap = row.createDiv('lt-hbar-bar-wrap');
+        barWrap.createDiv({
+          cls: 'lt-hbar-fill',
+          attr: { style: `width:${(min/maxW)*100}%;background:${['#4db8ac','#4d9dc8','#5dae90','#b8a060','#c08080'][i]}` }
+        });
+        row.createSpan({ text: formatDuration(min), cls: 'lt-hbar-time' });
       });
     }
 
-    // Recent records (last 5)
-    const recent = records.slice(-5).reverse();
+    // ── ❸ Trend Line: 近7天趋势 ──
+    const trendSection = container.createDiv('lt-trend-section');
+    trendSection.createDiv({ text: '📈 近7天趋势', cls: 'lt-section-title' });
+    const trendData = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = dateStr(-i);
+      trendData.push({
+        label: formatCN(d),
+        min: records.filter(r => matchDay(r, d)).reduce((s, r) => s + r.durationMin, 0)
+      });
+    }
+    const maxTrend = Math.max(1, ...trendData.map(d => d.min));
+    const w = 200, h = 48, pad = 4;
+    const points = trendData.map((d, i) => {
+      const x = pad + (i / 6) * (w - pad * 2);
+      const y = h - pad - (d.min / maxTrend) * (h - pad * 2);
+      return `${x},${y}`;
+    }).join(' ');
+    const polyline = `<polyline class="lt-trend-line" points="${points}" />`;
+    const dots = trendData.map((d, i) => {
+      const x = pad + (i / 6) * (w - pad * 2);
+      const y = h - pad - (d.min / maxTrend) * (h - pad * 2);
+      return `<circle cx="${x}" cy="${y}" r="2.5" class="lt-trend-dot"><title>${d.label}: ${formatDuration(d.min)}</title></circle>`;
+    }).join('');
+    const labels = trendData.map((d, i) => {
+      const x = pad + (i / 6) * (w - pad * 2);
+      return `<text x="${x}" y="${h - 1}" class="lt-trend-label">${d.label}</text>`;
+    }).join('');
+
+    const svgEl = `<svg class="lt-trend-svg" viewBox="0 0 ${w} ${h}">
+      <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" class="lt-trend-axis"/>
+      ${polyline}${dots}${labels}
+    </svg>`;
+    trendSection.innerHTML += svgEl;
+
+    // ── Recent records ──
+    const recent = records.slice(-3).reverse();
     if (recent.length > 0) {
       const recentRow = container.createDiv('lt-recent');
       recentRow.createDiv({ text: '📝 最近记录', cls: 'lt-section-title' });
