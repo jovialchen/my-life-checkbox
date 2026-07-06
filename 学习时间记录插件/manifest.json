@@ -1,0 +1,9 @@
+{
+  "id": "learning-tracker",
+  "name": "📚 学习时间记录",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "快速记录学习时间，右侧边栏一键添加。自动读取项目简称，预设时长按钮，统计展示。",
+  "author": "Atlas",
+  "isDesktopOnly": false
+}

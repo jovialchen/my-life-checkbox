@@ -4,10 +4,9 @@ const VIEW_TYPE = 'daily-checkin-view';
 const DATA_FILE = '每日打卡.md';
 
 const DEFAULT_HABITS = [
-  { name: '呼吸练习', icon: '🫁' },
+  { name: '呼吸练习', icon: '🌬️' },
   { name: '面部哑铃', icon: '💪' },
   { name: '面部刮痧', icon: '💆' },
-  { name: '自定义',   icon: '✨' },
 ];
 
 // ── Helpers ─────────────────────────────────────────────────
@@ -55,7 +54,7 @@ function parseTable(md) {
     if (cells[0] === '日期') {
       // Header row — extract habit names
       headerHabits = cells.slice(1);
-      for (let i = 0; i < Math.min(headerHabits.length, 4); i++) {
+      for (let i = 0; i < Math.min(headerHabits.length, 3); i++) {
         habits[i] = { name: headerHabits[i], icon: habits[i]?.icon || '✨' };
       }
       inTable = true;
@@ -64,7 +63,7 @@ function parseTable(md) {
 
     if (inTable && cells[0].match(/^\d{4}-\d{2}-\d{2}/)) {
       const date = cells[0];
-      const counts = cells.slice(1, 5).map(c => parseInt(c) || 0);
+      const counts = cells.slice(1, 4).map(c => parseInt(c) || 0);
       records[date] = counts;
     }
   }
@@ -129,7 +128,7 @@ class DailyCheckinView extends ItemView {
 
     // ── Habit Cards ──
     const date = dateStr(this.currentOffset);
-    const counts = records[date] || [0, 0, 0, 0];
+    const counts = records[date] || [0, 0, 0];
 
     const cardsContainer = container.createDiv('checkin-cards');
 
@@ -157,7 +156,7 @@ class DailyCheckinView extends ItemView {
       const update = async (delta) => {
         const { habits, records } = await this.plugin.readData();
         const d = dateStr(this.currentOffset);
-        if (!records[d]) records[d] = [0, 0, 0, 0];
+        if (!records[d]) records[d] = [0, 0, 0];
         records[d][i] = Math.max(0, (records[d][i] || 0) + delta);
         await this.plugin.writeData(habits, records);
         countEl.setText(String(records[d][i]));
@@ -185,13 +184,13 @@ class DailyCheckinView extends ItemView {
 
     // Numbers row
     const date = dateStr(this.currentOffset);
-    const todayRecords = records[date] || [0, 0, 0, 0];
+    const todayRecords = records[date] || [0, 0, 0];
     const todayTotal = todayRecords.reduce((a, b) => a + b, 0);
 
     let weekTotal = 0;
     for (let i = 0; i < 7; i++) {
       const d = dateStr(-i);
-      const r = records[d] || [0, 0, 0, 0];
+      const r = records[d] || [0, 0, 0];
       weekTotal += r.reduce((a, b) => a + b, 0);
     }
 
@@ -237,13 +236,13 @@ class DailyCheckinView extends ItemView {
     const barsWrap = stats.createDiv('stats-bars');
     const maxVal = Math.max(1, ...Array.from({ length: 7 }, (_, i) => {
       const d = dateStr(-6 + i);
-      const r = records[d] || [0, 0, 0, 0];
+      const r = records[d] || [0, 0, 0];
       return r.reduce((a, b) => a + b, 0);
     }));
 
     for (let i = 6; i >= 0; i--) {
       const d = dateStr(-i);
-      const r = records[d] || [0, 0, 0, 0];
+      const r = records[d] || [0, 0, 0];
       const total = r.reduce((a, b) => a + b, 0);
       const pct = Math.max(2, (total / maxVal) * 100);
 
@@ -268,7 +267,7 @@ class CheckinSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.createEl('h2', { text: '🌸 每日打卡 · 设置' });
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
       const habit = this.plugin.settings.habits[i];
       new Setting(containerEl)
         .setName(`项目 ${i + 1}`)
@@ -369,6 +368,11 @@ module.exports = class DailyCheckinPlugin extends Plugin {
     this.settings = Object.assign({
       habits: DEFAULT_HABITS.map(h => ({ ...h })),
     }, await this.loadData());
+    // Auto-fix if habits length changed (e.g. 4→3)
+    if (this.settings.habits.length !== DEFAULT_HABITS.length) {
+      this.settings.habits = DEFAULT_HABITS.map(h => ({ ...h }));
+      await this.saveSettings();
+    }
   }
 
   async saveSettings() {

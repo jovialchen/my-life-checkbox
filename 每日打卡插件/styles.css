@@ -123,7 +123,6 @@
 .checkin-card[data-habit="0"]:hover { border-color: #ffd0da; }
 .checkin-card[data-habit="1"]:hover { border-color: #c8dff8; }
 .checkin-card[data-habit="2"]:hover { border-color: #dcd0f8; }
-.checkin-card[data-habit="3"]:hover { border-color: #c0f0d8; }
 
 /* Left side: icon + name */
 .card-left {
@@ -145,7 +144,6 @@
 .checkin-card[data-habit="0"] .card-icon { background: #fff0f3; }
 .checkin-card[data-habit="1"] .card-icon { background: #f0f4fa; }
 .checkin-card[data-habit="2"] .card-icon { background: #f4f0fa; }
-.checkin-card[data-habit="3"] .card-icon { background: #f0faf4; }
 
 .card-name {
   font-size: 14px;
