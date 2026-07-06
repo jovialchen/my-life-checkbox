@@ -7,14 +7,10 @@
   --lt-teal: #4db8ac;
   --lt-teal-dark: #309e90;
   --lt-ocean: #4d9dc8;
-  --lt-ocean-dark: #3078a8;
   --lt-mint: #5dae90;
-  --lt-mint-dark: #3d9070;
   --lt-shadow: 0 2px 12px rgba(30, 110, 110, 0.1);
   --lt-radius: 16px;
-  --font-cute: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-
-  font-family: var(--font-cute);
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   background: var(--lt-bg);
   padding: 12px;
   color: var(--lt-text);
@@ -22,23 +18,42 @@
   box-sizing: border-box;
   overflow-y: auto;
 }
-
 .learning-tracker-container::-webkit-scrollbar { width: 5px; }
 .learning-tracker-container::-webkit-scrollbar-track { background: transparent; }
 .learning-tracker-container::-webkit-scrollbar-thumb { background: #c0dcd6; border-radius: 10px; }
 
 /* Header */
-.lt-header { text-align: center; padding: 8px 0 10px; }
+.lt-header { text-align: center; padding: 8px 0 6px; }
 .lt-title { font-size: 20px; letter-spacing: 2px; }
+
+/* ── Day Tabs ── */
+.lt-tabs {
+  display: flex; gap: 6px;
+  background: var(--lt-card); border-radius: 14px; padding: 5px;
+  margin-bottom: 10px; box-shadow: var(--lt-shadow);
+}
+.lt-tab {
+  flex: 1; text-align: center; padding: 7px 4px; border-radius: 10px;
+  cursor: pointer; transition: all 0.25s ease;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.lt-tab:hover { background: #e8f6f2; }
+.lt-tab.active {
+  background: linear-gradient(135deg, #4db8ac, #3aa898); color: #fff;
+  box-shadow: 0 2px 8px rgba(40, 170, 150, 0.3);
+}
+.lt-tab-label { font-size: 13px; letter-spacing: 1px; }
+.lt-tab-date  { font-size: 10px; opacity: 0.7; }
+.lt-tab.active .lt-tab-date { opacity: 0.95; }
 
 /* Section */
 .lt-section { margin-bottom: 10px; }
 .lt-section-title { font-size: 12px; color: var(--lt-sub); margin-bottom: 6px; padding-left: 2px; }
 
-/* Project Buttons */
+/* ── Project Buttons ── */
 .lt-project-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 .lt-proj-btn {
-  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c0d8d2;
+  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c8ddd6;
   background: var(--lt-card); cursor: pointer; font-size: 12px;
   color: var(--lt-text); transition: all 0.2s ease; white-space: nowrap;
 }
@@ -48,10 +63,10 @@
   box-shadow: 0 2px 8px rgba(40, 170, 150, 0.3);
 }
 
-/* Time Buttons */
+/* ── Time Buttons ── */
 .lt-time-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 .lt-time-btn {
-  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c8dcd8;
+  padding: 6px 12px; border-radius: 20px; border: 1.5px solid #c8ddd6;
   background: var(--lt-card); cursor: pointer; font-size: 12px;
   color: var(--lt-text); transition: all 0.2s ease;
 }
@@ -61,19 +76,20 @@
   box-shadow: 0 2px 8px rgba(50, 160, 120, 0.3);
 }
 
-/* Inputs */
-.lt-empty { font-size: 11px; color: var(--lt-sub); padding: 4px 0; }
-.lt-custom-row { margin-top: 6px; }
-.lt-custom-input {
-  width: 100%; padding: 8px 12px; border: 1.5px solid #c0d4ce;
-  border-radius: 12px; font-size: 13px; outline: none;
+/* ── Notes Input ── */
+.lt-notes-input {
+  width: 100%; padding: 8px 12px;
+  border: 1.5px solid #c8ddd6; border-radius: 12px;
+  font-size: 13px; outline: none;
   background: var(--lt-card); color: var(--lt-text); box-sizing: border-box;
   transition: border-color 0.2s;
 }
-.lt-custom-input:focus { border-color: var(--lt-teal); }
-.lt-custom-input::placeholder { color: #b0c4bc; }
+.lt-notes-input:focus { border-color: var(--lt-teal); }
+.lt-notes-input::placeholder { color: #b0c8c0; }
 
-/* Record Button */
+.lt-empty { font-size: 11px; color: var(--lt-sub); padding: 4px 0; }
+
+/* ── Record Button ── */
 .lt-record-btn {
   width: 100%; padding: 12px; border: none; border-radius: var(--lt-radius);
   background: linear-gradient(135deg, #4db8ac, #309e90);
@@ -84,7 +100,7 @@
 .lt-record-btn:hover { box-shadow: 0 4px 16px rgba(30, 160, 140, 0.4); transform: translateY(-1px); }
 .lt-record-btn:active { transform: scale(0.97); }
 
-/* Stats */
+/* ── Stats ── */
 .lt-stats {
   background: var(--lt-card); border-radius: var(--lt-radius);
   padding: 14px; box-shadow: var(--lt-shadow);
@@ -103,74 +119,33 @@
 .lt-ring-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
 .lt-ring-svg { transform: rotate(-90deg); width: 56px; height: 56px; }
 .lt-ring-bg { fill: none; stroke: #d8e8e2; stroke-width: 5; }
-.lt-ring-fill { fill: none; stroke-width: 5; stroke-linecap: round;
-  transition: stroke-dashoffset 0.6s ease; }
-.lt-ring-center {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
-}
+.lt-ring-fill { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.lt-ring-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; }
 .lt-ring-legend { display: flex; flex-direction: column; gap: 3px; }
 .lt-ring-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; }
 .lt-ring-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-/* Per-project today */
-.lt-proj-stats {
-  display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; margin-bottom: 8px;
-}
-.lt-proj-stat-item {
-  display: flex; align-items: center; gap: 4px;
-  background: #e8f6f2; padding: 3px 10px; border-radius: 12px;
-}
-.lt-proj-name  { font-size: 11px; color: var(--lt-text); }
-.lt-proj-time  { font-size: 12px; color: var(--lt-teal-dark); }
+/* Horizontal Bars */
+.lt-hbar-section { margin-top: 8px; }
+.lt-hbar-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.lt-hbar-name { font-size: 11px; width: 48px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lt-hbar-bar-wrap { flex: 1; height: 14px; background: #e0ece8; border-radius: 7px; overflow: hidden; }
+.lt-hbar-fill { height: 100%; border-radius: 7px; min-width: 4px; transition: width 0.5s ease; }
+.lt-hbar-time { font-size: 11px; color: var(--lt-sub); flex-shrink: 0; min-width: 40px; text-align: right; }
 
-/* Recent records */
+/* Trend Line */
+.lt-trend-section { margin-top: 8px; }
+.lt-trend-svg { width: 100%; height: auto; display: block; margin-top: 4px; }
+.lt-trend-axis { stroke: #d0ddd8; stroke-width: 1; }
+.lt-trend-line { fill: none; stroke: #4db8ac; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lt-trend-dot { fill: #4db8ac; stroke: #fff; stroke-width: 1; }
+.lt-trend-dot:last-child { fill: #309e90; r: 3.5; }
+.lt-trend-label { font-size: 7px; fill: var(--lt-sub); text-anchor: middle; }
+
+/* Recent */
 .lt-recent { margin-top: 4px; }
-.lt-recent-item {
-  display: flex; align-items: center; gap: 8px; padding: 4px 0;
-  font-size: 11px; border-bottom: 1px solid #e8f0ec;
-}
+.lt-recent-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 11px; border-bottom: 1px solid #e8f0ec; }
 .lt-recent-item:last-child { border-bottom: none; }
 .lt-recent-proj { color: var(--lt-text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lt-recent-time { color: var(--lt-teal-dark); flex-shrink: 0; }
 .lt-recent-note { color: var(--lt-sub); flex-shrink: 0; font-size: 10px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* ── Horizontal Bar Chart (本周排行) ── */
-.lt-hbar-section { margin-top: 8px; }
-.lt-hbar-row {
-  display: flex; align-items: center; gap: 6px; padding: 3px 0;
-}
-.lt-hbar-name {
-  font-size: 11px; width: 44px; flex-shrink: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.lt-hbar-bar-wrap {
-  flex: 1; height: 14px; background: #e0ece8; border-radius: 7px; overflow: hidden;
-}
-.lt-hbar-fill {
-  height: 100%; border-radius: 7px; min-width: 4px;
-  transition: width 0.5s ease;
-}
-.lt-hbar-time {
-  font-size: 11px; color: var(--lt-sub); flex-shrink: 0; min-width: 40px; text-align: right;
-}
-
-/* ── Trend Line (近7天趋势) ── */
-.lt-trend-section { margin-top: 8px; }
-.lt-trend-svg {
-  width: 100%; height: auto; display: block;
-  margin-top: 4px;
-}
-.lt-trend-axis {
-  stroke: #d0ddd8; stroke-width: 1;
-}
-.lt-trend-line {
-  fill: none; stroke: #4db8ac; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-}
-.lt-trend-dot {
-  fill: #4db8ac; stroke: #fff; stroke-width: 1;
-}
-.lt-trend-dot:last-child { fill: #309e90; r: 3.5; }
-.lt-trend-label {
-  font-size: 7px; fill: var(--lt-sub); text-anchor: middle;
-}

@@ -26,6 +26,12 @@ function formatCN(date) {
   return `${parseInt(m)}/${parseInt(d)}`;
 }
 
+function dayLabel(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+}
+
 function formatDuration(totalMinutes) {
   if (totalMinutes >= 60) {
     const h = Math.floor(totalMinutes / 60);
@@ -37,7 +43,6 @@ function formatDuration(totalMinutes) {
 
 // ── Markdown parser ─────────────────────────────────────────
 function parseProjects(md) {
-  // Extract project names from the code block in "项目简称" section
   const projects = [];
   const codeBlockMatch = md.match(/```\s*\n([\s\S]*?)```/);
   if (codeBlockMatch) {
@@ -45,12 +50,9 @@ function parseProjects(md) {
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed) {
-        // Each line may have multiple projects separated by spaces
         const names = trimmed.split(/\s+/);
         for (const name of names) {
-          if (name && !projects.includes(name)) {
-            projects.push(name);
-          }
+          if (name && !projects.includes(name)) projects.push(name);
         }
       }
     }
@@ -59,8 +61,7 @@ function parseProjects(md) {
 }
 
 function parseRecords(md) {
-  // Parse all record tables (both 快速记录 and 全部记录)
-  const records = []; // [{ date, project, duration, durationMin, notes }]
+  const records = [];
   const lines = md.split('\n');
   let inTable = false;
 
@@ -70,17 +71,11 @@ function parseRecords(md) {
 
     const cells = trimmed.split('|').map(c => c.trim()).filter(c => c);
     if (cells.length < 3) continue;
-
-    // Skip header and separator lines
     if (cells[0] === '日期' || cells[0].startsWith('-') || cells[0].startsWith(':-')) {
-      inTable = true;
-      continue;
+      inTable = true; continue;
     }
-
-    // Skip empty rows
     if (!cells[0]) continue;
 
-    // Date must match YYYY-MM-DD or MM-DD format
     if (cells[0].match(/^\d{4}-\d{2}-\d{2}/) || cells[0].match(/^\d{2}-\d{2}/)) {
       const date = cells[0];
       const project = cells[1] || '';
@@ -92,17 +87,14 @@ function parseRecords(md) {
       }
     }
   }
-
   return records;
 }
 
 function parseDuration(str) {
   if (!str) return 0;
   let minutes = 0;
-  // Match hours: 1hr, 2h, 1 hour, etc.
   const hourMatch = str.match(/(\d+)\s*(hr|hour|h)/i);
   if (hourMatch) minutes += parseInt(hourMatch[1]) * 60;
-  // Match minutes: 30min, 10m, 5 min, etc.
   const minMatch = str.match(/(\d+)\s*(min|minute|m)/i);
   if (minMatch) minutes += parseInt(minMatch[1]);
   return minutes;
@@ -115,6 +107,7 @@ class LearningTrackerView extends ItemView {
     this.plugin = plugin;
     this.selectedProject = null;
     this.customTime = '';
+    this.currentOffset = 0; // 0=today, -1=yesterday, -2=day before
   }
 
   getViewType() { return VIEW_TYPE; }
@@ -140,37 +133,37 @@ class LearningTrackerView extends ItemView {
     const header = container.createDiv('lt-header');
     header.createSpan({ text: '📚 学习记录', cls: 'lt-title' });
 
-    // ── Project Selector ──
+    // ── Day Tabs ──
+    const tabs = container.createDiv('lt-tabs');
+    [0, -1, -2].forEach(offset => {
+      const tab = tabs.createDiv('lt-tab');
+      if (offset === this.currentOffset) tab.addClass('active');
+      tab.createSpan({ text: offset === 0 ? '今天' : offset === -1 ? '昨天' : '前天', cls: 'lt-tab-label' });
+      tab.createSpan({ text: formatCN(dateStr(offset)) + ' ' + dayLabel(offset), cls: 'lt-tab-date' });
+      tab.addEventListener('click', () => {
+        this.currentOffset = offset;
+        this.refreshUI();
+      });
+    });
+
+    // ── Project Selector (buttons only, no input) ──
     const projSection = container.createDiv('lt-section');
-    projSection.createDiv({ text: '📋 选择项目', cls: 'lt-section-title' });
+    projSection.createDiv({ text: '📋 项目', cls: 'lt-section-title' });
     const projGrid = projSection.createDiv('lt-project-grid');
 
     if (projects.length === 0) {
-      projGrid.createDiv({ text: '未找到项目，请在 学习时间记录.md 中添加', cls: 'lt-empty' });
+      projGrid.createDiv({ text: '未找到项目简称', cls: 'lt-empty' });
     } else {
       projects.forEach(p => {
         const btn = projGrid.createEl('button', { text: p, cls: 'lt-proj-btn' });
         if (this.selectedProject === p) btn.addClass('active');
         btn.addEventListener('click', () => {
           this.selectedProject = p;
-          // Update all project buttons
           projGrid.querySelectorAll('.lt-proj-btn').forEach(b => b.removeClass('active'));
           btn.addClass('active');
         });
       });
     }
-
-    // ── Custom Project Input ──
-    const customRow = projSection.createDiv('lt-custom-row');
-    const customInput = customRow.createEl('input', {
-      type: 'text',
-      placeholder: '或输入其他项目名...',
-      cls: 'lt-custom-input',
-    });
-    customInput.addEventListener('input', () => {
-      this.selectedProject = customInput.value || null;
-      projGrid.querySelectorAll('.lt-proj-btn').forEach(b => b.removeClass('active'));
-    });
 
     // ── Time Selector ──
     const timeSection = container.createDiv('lt-section');
@@ -179,25 +172,12 @@ class LearningTrackerView extends ItemView {
 
     TIME_PRESETS.forEach(t => {
       const btn = timeGrid.createEl('button', { text: t.label, cls: 'lt-time-btn' });
+      if (this.customTime === t.label) btn.addClass('active');
       btn.addEventListener('click', () => {
         this.customTime = t.label;
         timeGrid.querySelectorAll('.lt-time-btn').forEach(b => b.removeClass('active'));
         btn.addClass('active');
-        const customInput = container.querySelector('.lt-time-input');
-        if (customInput) customInput.value = '';
       });
-    });
-
-    // Custom time
-    const customTimeRow = timeSection.createDiv('lt-custom-row');
-    const timeInput = customTimeRow.createEl('input', {
-      type: 'text',
-      placeholder: '自定义时长，如 45min 或 1.5hr',
-      cls: 'lt-custom-input lt-time-input',
-    });
-    timeInput.addEventListener('input', () => {
-      this.customTime = timeInput.value || null;
-      timeGrid.querySelectorAll('.lt-time-btn').forEach(b => b.removeClass('active'));
     });
 
     // ── Notes ──
@@ -206,7 +186,7 @@ class LearningTrackerView extends ItemView {
     const notesInput = notesSection.createEl('input', {
       type: 'text',
       placeholder: '学了什么...',
-      cls: 'lt-custom-input',
+      cls: 'lt-notes-input',
     });
 
     // ── Record Button ──
@@ -216,19 +196,16 @@ class LearningTrackerView extends ItemView {
     });
     recordBtn.addEventListener('click', async () => {
       if (!this.selectedProject) {
-        new Notice('请先选择项目 📋');
-        return;
+        new Notice('请选择项目 📋'); return;
       }
-      const timeStr = this.customTime || '0min';
-      const durationMin = parseDuration(timeStr);
-      if (durationMin === 0 && !this.customTime) {
-        new Notice('请选择或输入时长 ⏱');
-        return;
+      const timeStr = this.customTime;
+      if (!timeStr) {
+        new Notice('请选择时长 ⏱'); return;
       }
       const notes = notesInput.value.trim();
-      await this.plugin.appendRecord(this.selectedProject, timeStr, notes);
-      new Notice(`✅ 已记录 ${this.selectedProject} ${formatDuration(durationMin)}`);
-      // Reset
+      await this.plugin.appendRecord(this.selectedProject, timeStr, notes, this.currentOffset);
+      const min = parseDuration(timeStr);
+      new Notice(`✅ ${this.selectedProject} +${formatDuration(min)}`);
       this.selectedProject = null;
       this.customTime = '';
       await this.refreshUI();
@@ -246,14 +223,12 @@ class LearningTrackerView extends ItemView {
     const todayRecords = records.filter(r => matchDay(r, today));
     const todayMin = todayRecords.reduce((s, r) => s + r.durationMin, 0);
 
-    // Week total
     let weekMin = 0;
     for (let i = 0; i < 7; i++) {
       const d = dateStr(-i);
       weekMin += records.filter(r => matchDay(r, d)).reduce((s, r) => s + r.durationMin, 0);
     }
 
-    // Month
     const monthPrefix = new Date().toISOString().slice(0, 7);
     let monthMin = 0;
     for (const r of records) {
@@ -261,7 +236,6 @@ class LearningTrackerView extends ItemView {
       if (d.startsWith(monthPrefix)) monthMin += r.durationMin;
     }
 
-    // Streak
     let streak = 0;
     for (let i = 0; i < 365; i++) {
       const d = dateStr(-i);
@@ -282,34 +256,27 @@ class LearningTrackerView extends ItemView {
       item.createSpan({ text: s.label, cls: 'lt-stat-label' });
     });
 
-    // ── ❶ Ring Chart: 今日项目占比 ──
+    // ── Ring Chart ──
     if (todayMin > 0) {
       const ringRow = container.createDiv('lt-ring-row');
       const ringWrap = ringRow.createDiv('lt-ring-wrap');
       const r = 22, circ = 2 * Math.PI * r;
       const colors = ['#4db8ac','#4d9dc8','#5dae90','#b8a060','#c08080','#80a0c0'];
-
-      // Aggregate today by project
       const projMap = {};
-      todayRecords.forEach(r => {
-        projMap[r.project] = (projMap[r.project] || 0) + r.durationMin;
-      });
+      todayRecords.forEach(r => { projMap[r.project] = (projMap[r.project] || 0) + r.durationMin; });
       const projEntries = Object.entries(projMap);
-
-      let dashOffset = 0;
-      const segments = projEntries.map(([, min], i) => {
+      let dashOff = 0;
+      const segs = projEntries.map(([,min], i) => {
         const len = (min / todayMin) * circ;
-        const seg = `<circle class="lt-ring-fill" cx="28" cy="28" r="${r}"
+        const s = `<circle class="lt-ring-fill" cx="28" cy="28" r="${r}"
           stroke="${colors[i % colors.length]}" stroke-dasharray="${len} ${circ}"
-          stroke-dashoffset="${-dashOffset}" />`;
-        dashOffset += len;
-        return seg;
+          stroke-dashoffset="${-dashOff}" />`;
+        dashOff += len;
+        return s;
       }).join('');
-
       ringWrap.innerHTML = `<svg class="lt-ring-svg" viewBox="0 0 56 56">
-        <circle class="lt-ring-bg" cx="28" cy="28" r="${r}"/>${segments}</svg>`;
+        <circle class="lt-ring-bg" cx="28" cy="28" r="${r}"/>${segs}</svg>`;
       ringWrap.createDiv({ text: '📚', cls: 'lt-ring-center' });
-
       const legend = ringRow.createDiv('lt-ring-legend');
       projEntries.forEach(([proj, min], i) => {
         const item = legend.createDiv('lt-ring-legend-item');
@@ -320,7 +287,7 @@ class LearningTrackerView extends ItemView {
       container.createDiv({ text: '💤 今天还没学习呢~', cls: 'lt-empty' });
     }
 
-    // ── ❷ Horizontal Bar: 本周项目排行 ──
+    // ── Horizontal Bars ──
     const weekProjMap = {};
     for (let i = 0; i < 7; i++) {
       const d = dateStr(-i);
@@ -328,65 +295,56 @@ class LearningTrackerView extends ItemView {
         weekProjMap[r.project] = (weekProjMap[r.project] || 0) + r.durationMin;
       });
     }
-    const weekSorted = Object.entries(weekProjMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const weekSorted = Object.entries(weekProjMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
     if (weekSorted.length > 0) {
-      const hbarSection = container.createDiv('lt-hbar-section');
-      hbarSection.createDiv({ text: '📊 本周排行', cls: 'lt-section-title' });
+      const hb = container.createDiv('lt-hbar-section');
+      hb.createDiv({ text: '📊 本周排行', cls: 'lt-section-title' });
       const maxW = weekSorted[0][1];
+      const barColors = ['#4db8ac','#4d9dc8','#5dae90','#b8a060','#c08080'];
       weekSorted.forEach(([proj, min], i) => {
-        const row = hbarSection.createDiv('lt-hbar-row');
+        const row = hb.createDiv('lt-hbar-row');
         row.createSpan({ text: proj, cls: 'lt-hbar-name' });
-        const barWrap = row.createDiv('lt-hbar-bar-wrap');
-        barWrap.createDiv({
-          cls: 'lt-hbar-fill',
-          attr: { style: `width:${(min/maxW)*100}%;background:${['#4db8ac','#4d9dc8','#5dae90','#b8a060','#c08080'][i]}` }
-        });
+        const bw = row.createDiv('lt-hbar-bar-wrap');
+        bw.createDiv({ cls: 'lt-hbar-fill', attr: { style: `width:${(min/maxW)*100}%;background:${barColors[i]}` } });
         row.createSpan({ text: formatDuration(min), cls: 'lt-hbar-time' });
       });
     }
 
-    // ── ❸ Trend Line: 近7天趋势 ──
-    const trendSection = container.createDiv('lt-trend-section');
-    trendSection.createDiv({ text: '📈 近7天趋势', cls: 'lt-section-title' });
-    const trendData = [];
+    // ── Trend Line ──
+    const trend = container.createDiv('lt-trend-section');
+    trend.createDiv({ text: '📈 近7天趋势', cls: 'lt-section-title' });
+    const td = [];
     for (let i = 6; i >= 0; i--) {
       const d = dateStr(-i);
-      trendData.push({
-        label: formatCN(d),
-        min: records.filter(r => matchDay(r, d)).reduce((s, r) => s + r.durationMin, 0)
-      });
+      td.push({ label: formatCN(d), min: records.filter(r => matchDay(r, d)).reduce((s,r) => s + r.durationMin, 0) });
     }
-    const maxTrend = Math.max(1, ...trendData.map(d => d.min));
-    const w = 200, h = 48, pad = 4;
-    const points = trendData.map((d, i) => {
-      const x = pad + (i / 6) * (w - pad * 2);
-      const y = h - pad - (d.min / maxTrend) * (h - pad * 2);
+    const maxT = Math.max(1, ...td.map(d => d.min));
+    const W = 200, H = 48, P = 4;
+    const pts = td.map((d, i) => {
+      const x = P + (i / 6) * (W - P*2);
+      const y = H - P - (d.min / maxT) * (H - P*2);
       return `${x},${y}`;
     }).join(' ');
-    const polyline = `<polyline class="lt-trend-line" points="${points}" />`;
-    const dots = trendData.map((d, i) => {
-      const x = pad + (i / 6) * (w - pad * 2);
-      const y = h - pad - (d.min / maxTrend) * (h - pad * 2);
+    const dots = td.map((d, i) => {
+      const x = P + (i / 6) * (W - P*2);
+      const y = H - P - (d.min / maxT) * (H - P*2);
       return `<circle cx="${x}" cy="${y}" r="2.5" class="lt-trend-dot"><title>${d.label}: ${formatDuration(d.min)}</title></circle>`;
     }).join('');
-    const labels = trendData.map((d, i) => {
-      const x = pad + (i / 6) * (w - pad * 2);
-      return `<text x="${x}" y="${h - 1}" class="lt-trend-label">${d.label}</text>`;
+    const labels = td.map((d, i) => {
+      const x = P + (i / 6) * (W - P*2);
+      return `<text x="${x}" y="${H-1}" class="lt-trend-label">${d.label}</text>`;
     }).join('');
+    trend.innerHTML += `<svg class="lt-trend-svg" viewBox="0 0 ${W} ${H}">
+      <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" class="lt-trend-axis"/>
+      <polyline class="lt-trend-line" points="${pts}"/>${dots}${labels}</svg>`;
 
-    const svgEl = `<svg class="lt-trend-svg" viewBox="0 0 ${w} ${h}">
-      <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" class="lt-trend-axis"/>
-      ${polyline}${dots}${labels}
-    </svg>`;
-    trendSection.innerHTML += svgEl;
-
-    // ── Recent records ──
-    const recent = records.slice(-3).reverse();
+    // ── Recent ──
+    const recent = records.slice(0, 3);
     if (recent.length > 0) {
-      const recentRow = container.createDiv('lt-recent');
-      recentRow.createDiv({ text: '📝 最近记录', cls: 'lt-section-title' });
+      const rr = container.createDiv('lt-recent');
+      rr.createDiv({ text: '📝 最近记录', cls: 'lt-section-title' });
       recent.forEach(r => {
-        const row = recentRow.createDiv('lt-recent-item');
+        const row = rr.createDiv('lt-recent-item');
         row.createSpan({ text: r.project, cls: 'lt-recent-proj' });
         row.createSpan({ text: r.duration, cls: 'lt-recent-time' });
         if (r.notes) row.createSpan({ text: r.notes, cls: 'lt-recent-note' });
@@ -395,18 +353,14 @@ class LearningTrackerView extends ItemView {
   }
 }
 
-// ── Settings Tab ────────────────────────────────────────────
+// ── Settings ────────────────────────────────────────────────
 class LearningTrackerSettingTab extends PluginSettingTab {
-  constructor(app, plugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
+  constructor(app, plugin) { super(app, plugin); this.plugin = plugin; }
   display() {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl('h2', { text: '📚 学习时间记录 · 设置' });
-    containerEl.createEl('p', { text: '项目列表自动从 学习时间记录.md 的"项目简称"区域读取。在那边修改即可。' });
+    containerEl.createEl('p', { text: '项目列表自动从 学习时间记录.md 的"项目简称"读取。' });
   }
 }
 
@@ -414,24 +368,11 @@ class LearningTrackerSettingTab extends PluginSettingTab {
 module.exports = class LearningTrackerPlugin extends Plugin {
   async onload() {
     await this.loadSettings();
-
     this.registerView(VIEW_TYPE, (leaf) => new LearningTrackerView(leaf, this));
-
-    this.addRibbonIcon('book-open', '打开学习记录', () => {
-      this.activateView();
-    });
-
-    this.addCommand({
-      id: 'open-learning-tracker',
-      name: '打开学习记录',
-      callback: () => this.activateView(),
-    });
-
+    this.addRibbonIcon('book-open', '打开学习记录', () => this.activateView());
+    this.addCommand({ id: 'open-learning-tracker', name: '打开学习记录', callback: () => this.activateView() });
     this.addSettingTab(new LearningTrackerSettingTab(this.app, this));
-
-    this.app.workspace.onLayoutReady(() => {
-      this.activateView();
-    });
+    this.app.workspace.onLayoutReady(() => this.activateView());
   }
 
   async activateView() {
@@ -452,68 +393,37 @@ module.exports = class LearningTrackerPlugin extends Plugin {
       const exists = await this.app.vault.adapter.exists(DATA_FILE);
       if (!exists) return '';
       return await this.app.vault.adapter.read(DATA_FILE);
-    } catch {
-      return '';
-    }
+    } catch { return ''; }
   }
 
-  async appendRecord(project, duration, notes) {
+  async appendRecord(project, duration, notes, dayOffset = 0) {
     const md = await this.readFile();
-    const today = dateStr(0);
-
-    // Build the new row
+    const targetDate = dateStr(dayOffset);
     const notesCell = notes || '';
-    const newRow = `| ${today} | ${project} | ${duration} | ${notesCell} |`;
+    const newRow = `| ${targetDate} | ${project} | ${duration} | ${notesCell} |`;
 
-    // Find the 快速记录 section and insert before the empty row
     const lines = md.split('\n');
-    let inQuickSection = false;
-    let inTable = false;
     let insertIdx = -1;
-    let emptyRowIdx = -1;
 
+    // Find the table: locate header row "| 日期 |" then separator "|------|", insert after separator
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      // Detect "快速记录" section header
-      if (line.includes('快速记录')) {
-        inQuickSection = true;
-        continue;
-      }
-      // Section boundary
-      if (inQuickSection && line.trim().startsWith('---')) {
-        break;
-      }
-      if (inQuickSection && line.trim().startsWith('|')) {
-        const trimmed = line.trim();
-        const cells = trimmed.split('|').map(c => c.trim()).filter(c => c);
-        // Empty row: all cells are blank
-        if (cells.every(c => !c)) {
-          emptyRowIdx = i;
-          insertIdx = i;
-          break;
+      const trimmed = lines[i].trim();
+      if (trimmed.startsWith('|') && trimmed.includes('日期') && trimmed.includes('项目')) {
+        // Next non-empty line should be separator
+        for (let j = i + 1; j < lines.length; j++) {
+          if (lines[j].trim().startsWith('|') && lines[j].includes('---')) {
+            insertIdx = j + 1; // right after separator = top of table
+            break;
+          }
         }
-        inTable = true;
+        break;
       }
     }
 
-    // If we found the empty marker row, insert before it
     if (insertIdx >= 0) {
       lines.splice(insertIdx, 0, newRow);
     } else {
-      // Fallback: find the last table row in quick section and append after
-      // Just insert before the "*每次学完..." hint line
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes('每次学完加一行') || lines[i].includes('每次做完就记一笔')) {
-          insertIdx = i;
-          break;
-        }
-      }
-      if (insertIdx >= 0) {
-        lines.splice(insertIdx, 0, newRow);
-      } else {
-        new Notice('⚠️ 无法定位插入位置，请检查 学习时间记录.md 格式');
-        return;
-      }
+      new Notice('⚠️ 找不到记录表格'); return;
     }
 
     const newMd = lines.join('\n');
@@ -525,11 +435,6 @@ module.exports = class LearningTrackerPlugin extends Plugin {
     }
   }
 
-  async loadSettings() {
-    this.settings = Object.assign({}, await this.loadData());
-  }
-
-  async saveSettings() {
-    await this.saveData(this.settings);
-  }
+  async loadSettings() { this.settings = Object.assign({}, await this.loadData()); }
+  async saveSettings() { await this.saveData(this.settings); }
 };
