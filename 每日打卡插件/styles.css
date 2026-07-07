@@ -10,6 +10,8 @@
   --ck-blue-dark: #8ab8e0;
   --ck-purple: #d4c0f0;
   --ck-purple-dark: #b898e0;
+  --ck-teal: #b8e8d0;
+  --ck-teal-dark: #80c8a0;
   --ck-shadow: 0 2px 12px rgba(230, 180, 180, 0.2);
   --ck-radius: 18px;
   --font-cute: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
@@ -70,6 +72,7 @@
 .checkin-card[data-habit="0"]:hover { border-color: #ffd0da; }
 .checkin-card[data-habit="1"]:hover { border-color: #c8dff8; }
 .checkin-card[data-habit="2"]:hover { border-color: #dcd0f8; }
+.checkin-card[data-habit="3"]:hover { border-color: #c8f0d8; }
 
 /* Card internals */
 .card-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -80,6 +83,7 @@
 .checkin-card[data-habit="0"] .card-icon { background: #fff0f3; }
 .checkin-card[data-habit="1"] .card-icon { background: #f0f4fa; }
 .checkin-card[data-habit="2"] .card-icon { background: #f4f0fa; }
+.checkin-card[data-habit="3"] .card-icon { background: #f0faf4; }
 .card-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .card-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -136,6 +140,7 @@
 .stats-ring-dot.d0 { background: var(--ck-pink); }
 .stats-ring-dot.d1 { background: var(--ck-blue); }
 .stats-ring-dot.d2 { background: var(--ck-purple); }
+.stats-ring-dot.d3 { background: var(--ck-teal); }
 
 /* Bar chart */
 .stats-bars { margin-top: 4px; }
