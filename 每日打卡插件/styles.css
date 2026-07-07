@@ -73,6 +73,7 @@
 .checkin-card[data-habit="1"]:hover { border-color: #c8dff8; }
 .checkin-card[data-habit="2"]:hover { border-color: #dcd0f8; }
 .checkin-card[data-habit="3"]:hover { border-color: #c8f0d8; }
+.checkin-card[data-habit="4"]:hover { border-color: #f0d8c8; }
 
 /* Card internals */
 .card-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -84,6 +85,7 @@
 .checkin-card[data-habit="1"] .card-icon { background: #f0f4fa; }
 .checkin-card[data-habit="2"] .card-icon { background: #f4f0fa; }
 .checkin-card[data-habit="3"] .card-icon { background: #f0faf4; }
+.checkin-card[data-habit="4"] .card-icon { background: #faf4f0; }
 .card-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .card-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -141,6 +143,7 @@
 .stats-ring-dot.d1 { background: var(--ck-blue); }
 .stats-ring-dot.d2 { background: var(--ck-purple); }
 .stats-ring-dot.d3 { background: var(--ck-teal); }
+.stats-ring-dot.d4 { background: #f0c8a0; }
 
 /* Bar chart */
 .stats-bars { margin-top: 4px; }
